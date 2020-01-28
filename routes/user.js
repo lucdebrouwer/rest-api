@@ -44,7 +44,7 @@ router.post("/users", async (req, res, next) => {
     defaults: {
       firstName: user.firstName,
       lastName: user.lastName,
-      password: bcrypt.hashSync(user.password) // Encrypt the user's password using the bcrypt library
+      password: user.password // Encrypt the user's password using the bcrypt library
     }
   })
     .then(([user, created]) => {
