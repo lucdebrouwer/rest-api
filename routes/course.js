@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
-const { Course } = db.models;
+const models = require("../models");
 // Set up the following routes (listed in the format HTTP METHOD Route HTTP Status Code):
 // GET /api/courses 200 - Returns a list of courses (including the user that owns each course)
 // GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID
@@ -10,11 +9,19 @@ const { Course } = db.models;
 // DELETE /api/courses/:id 204 - Deletes a course and returns no content
 
 router.get("/courses", async (req, res) => {
-  await Course.findAll().then(course => {
-    console.log("[RETRIEVING COURSE]", course);
-    res.send(course);
-    res.status(200).end();
-  });
+  await models.User.findAll({
+    include: [
+      {
+        model: models.Course
+      }
+    ]
+  })
+    .then(user => {
+      console.log("[COURSES] Retrieving Courses");
+      res.send(user);
+      res.status(200).end();
+    })
+    .catch(err => console.log(err));
 });
 router.get("/courses/:id", (req, res) => {
   res.status(200).end();

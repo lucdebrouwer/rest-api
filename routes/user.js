@@ -3,8 +3,6 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 
-const db = require("../db");
-
 /* ---------- SETUP ------------- */
 router.use(express.urlencoded());
 router.use(express.json());
