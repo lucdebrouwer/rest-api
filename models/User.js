@@ -6,16 +6,42 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     firstName: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "firstName can not be empty"
+        }
+      }
     },
     lastName: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "lastName can not be empty"
+        }
+      }
     },
     emailAddress: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      unique: {
+        args: true,
+        msg:
+          "Oops. Looks like you already have an account with this email address. Please try to login."
+      },
+      validate: {
+        isEmail: {
+          args: true,
+          msg: "The email you entered is invalid or is already in our system."
+        }
+      }
     },
     password: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "password can not be empty"
+        }
+      }
     }
   });
   User.associate = models => {
