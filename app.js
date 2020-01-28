@@ -3,6 +3,7 @@
 // load modules
 const express = require("express");
 const morgan = require("morgan");
+const db = require("./db");
 const { sequelize } = require("./db");
 
 const routes = require("./routes");
@@ -64,7 +65,7 @@ sequelize
 // start listening on our port
 sequelize
   .sync({
-    force: true,
+    force: false,
     logging: console.log("[SEQUELIZE] START SYNCING DATABASE ")
   })
   .then(() => {

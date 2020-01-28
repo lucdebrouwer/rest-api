@@ -6,47 +6,20 @@ module.exports = sequelize => {
     {
       id: {
         type: Sequelize.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
       },
       firstName: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: {
-            msg: "Please provide a first name"
-          }
-        }
+        type: Sequelize.STRING
       },
       lastName: {
-        type: Sequelize.STRING,
-        validate: {
-          NotEmpty: {
-            msg: "Please provide a last name"
-          }
-        }
+        type: Sequelize.STRING
       },
       emailAddress: {
-        type: Sequelize.STRING,
-        isEmail: true,
-        validate: {
-          isEmail: {
-            msg: "Please provide a valid email address"
-          },
-          unique: {
-            msg: "Please try a different email address"
-          },
-          notEmpty: {
-            msg: "Please provide an email address"
-          }
-        }
+        type: Sequelize.STRING
       },
       password: {
-        type: Sequelize.STRING,
-        validate: {
-          len: [6, 20],
-          isEmpty: {
-            msg: "Please provide a password"
-          }
-        }
+        type: Sequelize.STRING
       }
     },
     { sequelize }
