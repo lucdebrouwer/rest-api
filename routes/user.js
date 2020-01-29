@@ -17,7 +17,7 @@ router.use(express.json());
 
 /**
  * @description Returns the currently authenticated user
- * @returns 200 || 403 if not authorized
+ * @returns 200 || 401 if not authorized
  * @method GET
  */
 router.get(

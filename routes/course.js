@@ -4,13 +4,8 @@ const models = require("../models");
 const router = express.Router();
 router.use(express.urlencoded());
 router.use(express.json());
-// Set up the following routes (listed in the format HTTP METHOD Route HTTP Status Code):
-// GET /api/courses 200 - Returns a list of courses (including the user that owns each course)
-// GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID
-// POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
-// PUT /api/courses/:id 204 - Updates a course and returns no content
-// DELETE /api/courses/:id 204 - Deletes a course and returns no content
 
+// GET /api/courses 200 - Returns a list of courses (including the user that owns each course)
 router.get(
   "/courses",
   asyncHandler(async (req, res) => {
@@ -25,18 +20,23 @@ router.get(
       .then(course => {
         console.log("[COURSE | GET ] Retrieving Courses");
         if (course.length > 0) {
-          res.send(course);
+          res
+            .status(200)
+            .json(course)
+            .end();
         } else {
-          res.send({
-            message: "No courses were found"
-          });
+          res
+            .status(404)
+            .json({
+              message: "No courses were found"
+            })
+            .end();
         }
-        res.status(200).end();
       })
       .catch(err => console.log(err));
   })
 );
-
+// GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID
 router.get(
   "/courses/:id",
   asyncHandler(async (req, res) => {
@@ -53,26 +53,29 @@ router.get(
         console.log(
           `[COURSE | GET] Retrieving Course with ID: ${req.params.id} and Title: ${course.title}`
         );
-        res.json(course);
-        res.status(200).end();
+        res
+          .status(200)
+          .json(course)
+          .end();
       } else {
-        res.json({
-          error: `The course with id ${req.params.id} you are trying to retrieve does not exist`
-        });
+        res
+          .status(404)
+          .json({
+            error: `The course with id ${req.params.id} you are trying to retrieve does not exist`
+          })
+          .end();
       }
     });
   })
 );
 
-// TODO: Implement User Authentication to access the userId property in order to create courses.
-// TODO: Implement Create Course route.
-
+// POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
+//TODO: Set location header to /
 router.post(
   "/courses",
   authenticateUser,
   asyncHandler(async (req, res) => {
     const user = req.currentUser;
-    console.log("COURSE BODY ", req.body);
     if (user) {
       console.log(
         "[COURSE | CREATE] Start creating course for user ",
@@ -88,6 +91,7 @@ router.post(
         console.log(
           `[COURSE | CREATE] Succesfully created course ${course.title}`
         );
+        res.setHeader("Location", "/");
         res.status(201).end();
       });
     } else {
@@ -98,37 +102,107 @@ router.post(
   })
 );
 
+// PUT /api/courses/:id 204 - Updates a course and returns no content
 router.put(
   "/courses/:id",
   authenticateUser,
-  asyncHandler(async (req, res) => {
-    res.status(204).end();
+  asyncHandler(async (req, res, next) => {
+    const user = req.currentUser;
+    await models.Course.findOne({
+      where: { id: req.params.id },
+      include: {
+        model: models.User
+      }
+    })
+      .then(course => {
+        if (course) {
+          if (user.id === course.User.id) {
+            models.Course.update(req.body, {
+              where: {
+                id: req.params.id
+              }
+            })
+              .then(() => {
+                res.status(204).end();
+              })
+              .catch(error => {
+                next(error);
+              });
+          } else {
+            res.json({
+              error: "Access Denied, you don't own this course"
+            });
+            res.status(403).end();
+          }
+        } else {
+          res.json({
+            error: "Course Not Found"
+          });
+          res.status(404).end();
+        }
+      })
+      .catch(error => {
+        next(error);
+      });
   })
 );
-
+// DELETE /api/courses/:id 204 - Deletes a course and returns no content
 router.delete(
   "/courses/:id",
   authenticateUser,
   asyncHandler(async (req, res) => {
-    console.log(`[COURSE | DELETE] Deleting course with ID: ${req.params.id}`);
-    await models.Course.destroy({
-      where: {
-        id: req.params.id
+    const user = req.currentUser;
+    await models.Course.findOne({
+      where: { id: req.params.id },
+      include: {
+        model: models.User
       }
     })
-      .then(courseDeleted => {
-        if (courseDeleted === 1) {
-          console.log(
-            "[COURSE | DELETE] Succesfully deleted course with id ",
-            req.params.id
-          );
-          res.status(204).end();
+      .then(course => {
+        if (course) {
+          if (user.id === course.User.id) {
+            console.log(
+              `[COURSE | DELETE] Deleting course with ID: ${req.params.id}`
+            );
+            models.Course.destroy({
+              where: {
+                id: req.params.id
+              }
+            })
+              .then(courseDeleted => {
+                if (courseDeleted === 1) {
+                  console.log(
+                    "[COURSE | DELETE] Succesfully deleted course with id ",
+                    req.params.id
+                  );
+                  res.status(204).end();
+                } else {
+                  res.status(500).end();
+                }
+              })
+              .catch(error => {
+                console.log(error);
+                next(error);
+              });
+          } else {
+            res
+              .status(403)
+              .json({
+                error: "Access Denied, you don't own this course"
+              })
+              .end();
+          }
         } else {
-          res.status(400).end();
+          res
+            .status(404)
+            .json({
+              error: "Course Not Found"
+            })
+            .end();
         }
       })
-      .catch(err => {
-        console.log(err);
+      .catch(error => {
+        next(error);
       });
   })
 );
