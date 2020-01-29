@@ -1,10 +1,11 @@
 /* ----------- IMPORTING ------------- */
-const express = require("express");
+const { express, bcrypt } = require("../modules");
+const { asyncHandler, authenticateUser } = require("../lib/handlers");
+
 const router = express.Router();
-const bcrypt = require("bcryptjs");
 
 const models = require("../models");
-const Sequelize = models.Sequelize;
+
 /* ---------- SETUP ------------- */
 router.use(express.urlencoded());
 router.use(express.json());
@@ -19,11 +20,19 @@ router.use(express.json());
  * @returns 200 || 403 if not authorized
  * @method GET
  */
-router.get("/users", (req, res) => {
-  res.send("Hello from the User side");
-  res.status(200).end();
-});
+router.get(
+  "/users",
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    const user = req.currentUser;
+    res.json({
+      user
+    });
+    res.status(200).end();
+  })
+);
 
+// TODO: set location header to "/"
 /**
  * @description Creates a user, sets the Location header to "/", and returns no content
  * @returns 201 || 400 if not succesful
@@ -77,6 +86,7 @@ router.post("/users", async (req, res, next) => {
             const errors = err.errors.map(error => error.message);
             res.json({ error: errors });
             res.status(500).end();
+            next(err);
           }
         });
     } else {
@@ -84,7 +94,7 @@ router.post("/users", async (req, res, next) => {
       res.json({
         error: "No password was provided"
       });
-      res.status(401).end();
+      res.status(400).end();
     }
   }
 });
