@@ -25,10 +25,12 @@ router.get(
   authenticateUser,
   asyncHandler(async (req, res) => {
     const user = req.currentUser;
-    res.json({
-      user
-    });
-    res.status(200).end();
+    res
+      .status(200)
+      .json({
+        user
+      })
+      .end();
   })
 );
 
