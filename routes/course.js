@@ -191,7 +191,6 @@ router.delete(
     // 2. If the course exists else throw an exception
     // 2.1 Check if the requested course belongs to the authenticatedUser
     // 2.2 If user doesn't own the course, throw an exception
-    console.log("Entering delete section");
     const user = req.currentUser;
 
     await models.Course.findOne({
@@ -202,7 +201,6 @@ router.delete(
       }
     }).then(course => {
       if (!course) {
-        console.log("Entering delete section 2");
         res
           .status(404)
           .json({
