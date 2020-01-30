@@ -2,7 +2,8 @@ const { express } = require("../modules");
 const {
   asyncHandler,
   authenticateUser,
-  handleSequelizeValidationError
+  handleSequelizeValidationError,
+  handleEmptyBody
 } = require("../lib/handlers");
 const models = require("../models");
 const router = express.Router();
@@ -130,12 +131,7 @@ router.put(
       Object.entries(req.body).length === 0 &&
       req.body.constructor === Object
     ) {
-      res
-        .status(400)
-        .json({
-          error: "Request object can not be null, please provide valid data"
-        })
-        .end();
+      handleEmptyBody(res);
     } else {
       await models.Course.findOne({
         where: { id: req.params.id },

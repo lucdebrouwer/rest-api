@@ -1,49 +1,74 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define("User", {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    firstName: {
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          msg: "firstName can not be empty"
-        }
-      }
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          msg: "lastName can not be empty"
-        }
-      }
-    },
-    emailAddress: {
-      type: DataTypes.STRING,
-      unique: {
-        args: true,
-        msg:
-          "Oops. Looks like you already have an account with this email address. Please try to login."
+  const User = sequelize.define(
+    "User",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
       },
-      validate: {
-        isEmail: {
-          args: true,
-          msg: "The email you entered is invalid or is already in our system."
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg:
+              "Please provide a value for firstName, firstName can not be empty"
+          },
+          notNull: {
+            msg:
+              "Please provide a value for firstName, firstName can not be null"
+          }
+        }
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg: "Please provide a value for lastName can not be empty"
+          },
+          notNull: {
+            msg: "Please provide a value for lastName, lastName can not be null"
+          }
+        }
+      },
+      emailAddress: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: {
+            args: true,
+            msg: "Please provide a valid formatted email address"
+          },
+          notNull: {
+            msg: "Please provide an email address, email can not be null"
+          }
+        }
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg: "Please provide a valid password, password can not be empty"
+          },
+          notNull: {
+            msg: "Please provide a valid password, password can not be null"
+          }
         }
       }
     },
-    password: {
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          msg: "password can not be empty"
+    {
+      indexes: [
+        {
+          unique: true,
+          fields: ["emailAddress"]
         }
-      }
+      ]
     }
-  });
+  );
   User.associate = models => {
     User.hasMany(models.Course);
   };
