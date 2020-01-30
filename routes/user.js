@@ -12,9 +12,6 @@ router.use(express.json());
 
 /* ------------ ROUTES & LOGIC ------------ */
 
-// TODO: Implement authentication middleware
-// TODO: Return the current authenticated user
-
 /**
  * @description Returns the currently authenticated user
  * @returns 200 || 401 if not authorized
@@ -34,7 +31,6 @@ router.get(
   })
 );
 
-// TODO: set location header to "/"
 /**
  * @description Creates a user, sets the Location header to "/", and returns no content
  * @returns 201 || 400 if not succesful
@@ -50,9 +46,12 @@ router.post("/users", async (req, res, next) => {
 
   if (doesUserExist) {
     console.log([`[USER] ${req.body.emailAddress} already exists"`]);
-    res.json({
-      message: `USER: ${req.body.emailAddress} already exists, perhaps try logging in? `
-    });
+    res
+      .status(400)
+      .json({
+        message: `USER: ${req.body.emailAddress} already exists, perhaps try logging in? `
+      })
+      .end();
   } else {
     console.log(
       `[USER]${req.body.emailAddress} does not exist, starting creation process`
@@ -74,6 +73,7 @@ router.post("/users", async (req, res, next) => {
               "[REGISTER] Succesfully created account for: ",
               user.emailAddress
             );
+            res.setHeader("Location", "/");
             res.status(201).end();
           } else {
             console.log(
@@ -84,19 +84,22 @@ router.post("/users", async (req, res, next) => {
         })
         .catch(function(err) {
           if (err) {
-            console.log(err);
             const errors = err.errors.map(error => error.message);
-            res.json({ error: errors });
-            res.status(500).end();
+            res
+              .status(500)
+              .res.json({ error: errors })
+              .end();
             next(err);
           }
         });
     } else {
       console.log("[ERROR] No password was provided");
-      res.json({
-        error: "No password was provided"
-      });
-      res.status(400).end();
+      res
+        .status(400)
+        .json({
+          error: "No password was provided"
+        })
+        .end();
     }
   }
 });
