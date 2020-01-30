@@ -101,6 +101,7 @@ router.post("/users", async (req, res, next) => {
           }
         })
           .then(([user, created]) => {
+            const usr = user.get({ plain: true });
             if (created) {
               res.setHeader("Location", "/");
               res.status(201).end();
@@ -110,7 +111,7 @@ router.post("/users", async (req, res, next) => {
                 .json({
                   error: {
                     type: "unique constraint violation",
-                    message: "User already exists, try to login instead?"
+                    message: `User ${usr.emailAddress} already exists, try to login instead?`
                   }
                 })
                 .end();
