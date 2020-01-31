@@ -78,8 +78,9 @@ router.get(
 router.post(
   "/courses",
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res, next) => {
     const user = req.currentUser;
+
     if (user && user.emailAddress !== null) {
       console.log(
         "[COURSE | CREATE] Start creating course for user ",
@@ -131,7 +132,7 @@ router.put(
       Object.entries(req.body).length === 0 &&
       req.body.constructor === Object
     ) {
-      handleEmptyBody(res);
+      handleEmptyBody("course", req, res, next);
     } else {
       await models.Course.findOne({
         where: { id: req.params.id },
@@ -219,8 +220,8 @@ router.delete(
               }
             })
             .catch(error => {
-              next(error);
               console.log(error);
+              next(error);
             });
         } else {
           res

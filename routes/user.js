@@ -63,7 +63,7 @@ router.post("/users", async (req, res, next) => {
       .end();
   } else {
     // Checks if the request body has all the properties in place
-    if (handleEmptyBody(req, res)) {
+    if (handleEmptyBody("user", req, res, next)) {
       // In order to make sure you can't spoof the creation process,
       // I've created an array that will be filled with properties that are not null or empty
       // if the length of the array === 4 then it means all the properties have a value
