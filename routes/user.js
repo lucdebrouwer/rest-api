@@ -90,7 +90,7 @@ router.post("/users", async (req, res, next) => {
       }
       // as mentioned above, if length === 4 this means every value is in place.
       if (myArr.length === 4) {
-        const hashedPassword = bcrypt.hashedPassword(req.body.password);
+        const hashedPassword = bcrypt.hashSync(req.body.password);
         await models.User.findOrCreate({
           where: {
             emailAddress: req.body.emailAddress
