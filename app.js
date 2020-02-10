@@ -1,7 +1,7 @@
 "use strict";
 
 /* ----------- LOAD HELPERS & MODULES ------------- */
-const { express, morgan } = require("./modules");
+const { express, morgan, cors } = require("./modules");
 const {
   testAuth,
   syncServer,
@@ -15,7 +15,7 @@ const models = require("./models");
 const routes = require("./routes");
 
 /* ------------ SERVER SETUP ------------ */
-const app = doServerSetup(express, morgan, routes);
+const app = doServerSetup(express, morgan, routes, cors);
 
 /* ---------- ERROR HANDLING ---------- */
 routeNotFound(app);
